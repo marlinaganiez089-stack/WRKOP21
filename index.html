@@ -62,6 +62,8 @@
         .steam-2 { animation-delay: 1s; }
         .steam-3 { animation-delay: 1.8s; }
     </style>
+    <body class="overflow-x-hidden">
+    </body>
 </head>
 <body class="text-slate-300 min-h-screen antialiased overflow-y-auto custom-scrollbar flex">
 
@@ -400,8 +402,8 @@
 
    <script>
     // 1. Variabel Versi (Ganti angka ini saat Anda menambah menu baru)
-    const MENU_VERSION = "1.1";
-    
+    const MENU_VERSION = "1.2";
+
         let kategoriAktif = 'Semua';
         let keranjangNotaBelanja = [];
         let fungsiCallbackPrompt = null; 
@@ -1129,7 +1131,9 @@ if (keluarBaru === 0 && masukBaru === 0) return; // Langsung berhenti diam-diam 
         hitungDanTampilkan(); 
         perbaruiTampilanKeranjangNota();
     };
+    
 </script>
 </body>
 </html>
+
 
