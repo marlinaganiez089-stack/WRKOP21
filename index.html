@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WARKOP 21 - Premium Multi-User POS</title>
-    <!-- Tailwind CSS CDN -->
+    <title>WARKOP 21 - Premium Multi-User POS (Real-Time Cloud)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -36,15 +38,10 @@
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.04);
         }
-        .neon-glow:focus {
-            border-color: #f59e0b;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
-        }
     </style>
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-    <!-- SCREEN LOGIN TERISOLASI -->
     <div id="loginScreen" class="fixed inset-0 bg-darkBg z-[100] flex items-center justify-center p-4">
         <div class="w-full max-w-md bg-darkCard/80 border border-slate-800/80 p-8 rounded-3xl shadow-2xl backdrop-blur-xl space-y-6 text-center">
             <div class="inline-flex w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl items-center justify-center font-bold text-white text-3xl shadow-xl shadow-orange-600/20">☕</div>
@@ -68,7 +65,6 @@
         </div>
     </div>
 
-    <!-- HEADER MOBILE -->
     <header class="bg-darkCard/90 backdrop-blur-md p-4 border-b border-slate-800 sticky top-0 z-40 flex justify-between items-center shadow-lg md:hidden w-full">
         <div class="flex items-center space-x-3">
             <div class="w-9 h-9 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center font-bold text-white text-base">☕</div>
@@ -82,7 +78,6 @@
         </button>
     </header>
 
-    <!-- SIDEBAR UTAMA -->
     <div id="sidebarOverlay" onclick="toggleSidebar(false)" class="fixed inset-0 bg-black/80 z-50 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
     
     <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-darkCard border-r border-slate-900 flex flex-col justify-between p-5 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out md:relative md:transform-none md:flex shrink-0">
@@ -142,17 +137,15 @@
         </div>
     </aside>
 
-    <!-- MAIN VIEWPORT CONTENT -->
     <main class="flex-1 p-4 md:p-6 overflow-y-auto space-y-4 w-full">
 
-        <!-- KASIR CONTROLLER -->
         <div id="content-mesin-kasir" class="menu-content flex flex-col lg:flex-row gap-4 max-w-5xl">
             <div class="flex-1 bg-darkCard border border-slate-800/70 rounded-2xl p-5 shadow-xl space-y-4">
                 <h2 class="text-xs font-black text-slate-200 tracking-widest uppercase pb-2 border-b border-slate-800/60 flex items-center"><i class="fa-solid fa-cart-plus mr-2 text-amber-500"></i>Transaksi Kasir</h2>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1.5">Pilih Menu Kuliner</label>
-                        <select id="pilihMenu" onchange="updateFormMenu()" class="w-full bg-darkInput border border-slate-800 text-slate-200 text-xs rounded-xl p-3.5 outline-none neon-glow font-medium"></select>
+                        <select id="pilihMenu" onchange="updateFormMenu()" class="w-full bg-darkInput border border-slate-800 text-slate-200 text-xs rounded-xl p-3.5 outline-none font-medium"></select>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -206,7 +199,6 @@
             </div>
         </div>
 
-        <!-- RIWAYAT NOTA -->
         <div id="content-riwayat-nota" class="menu-content hidden flex flex-col space-y-4 max-w-4xl">
             <div class="bg-darkCard border border-slate-800/70 rounded-2xl p-5 shadow-xl">
                 <h2 class="text-xs font-black text-slate-200 tracking-widest uppercase mb-4 pb-2 border-b border-slate-800/60 flex items-center"><i class="fa-solid fa-receipt mr-2 text-amber-500"></i>Log Jurnal Penjualan Nota & Transaksi Hutang</h2>
@@ -214,10 +206,8 @@
             </div>
         </div>
 
-        <!-- BUKU HUTANG (KINI BISA MULTI-MENU + METODE BAYAR) -->
         <div id="content-buku-hutang" class="menu-content hidden flex flex-col space-y-4 max-w-5xl">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <!-- Sisi Input & Keranjang Hutang -->
                 <div class="lg:col-span-1 bg-darkCard border border-slate-800/70 rounded-2xl p-5 shadow-xl space-y-4">
                     <h2 class="text-xs font-black text-slate-200 tracking-widest uppercase pb-2 border-b border-slate-800/60 flex items-center"><i class="fa-solid fa-book-open mr-2 text-rose-500"></i>Form Hutang</h2>
                     <div>
@@ -246,7 +236,6 @@
                     </div>
                 </div>
 
-                <!-- Sisi Tabel Data Utama Buku Hutang -->
                 <div class="lg:col-span-2 bg-darkCard border border-slate-800/70 rounded-2xl p-5 shadow-xl space-y-4">
                     <h2 class="text-xs font-black text-slate-200 tracking-widest uppercase pb-2 border-b border-slate-800/60 flex items-center"><i class="fa-solid fa-list-check mr-2 text-rose-400"></i>Daftar Piutang Warkop</h2>
                     <div class="mb-3 p-3 bg-slate-900/50 border border-slate-800 rounded-xl flex items-center space-x-3">
@@ -275,12 +264,11 @@
             </div>
         </div>
 
-        <!-- MANAJEMEN STOK -->
         <div id="content-stok-harga" class="menu-content hidden flex flex-col space-y-4 max-w-4xl">
             <div class="bg-darkCard border border-slate-800/70 rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800/60">
                     <h2 class="text-xs font-black text-slate-200 tracking-widest uppercase flex items-center"><i class="fa-solid fa-boxes-stacked mr-2 text-slate-400"></i>Pembaruan & Kontrol Stok Master</h2>
-                    <span class="text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold px-2 py-1 rounded-md"><i class="fa-solid fa-satellite-dish mr-1 animate-pulse"></i>Multi-Tab Sync Active</span>
+                    <span class="text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold px-2 py-1 rounded-md"><i class="fa-solid fa-cloud mr-1 animate-pulse"></i>Cloud Realtime Active</span>
                 </div>
                 <div class="overflow-x-auto rounded-xl border border-slate-800/60 max-h-[400px]">
                     <table class="w-full text-xs text-left text-slate-300">
@@ -296,19 +284,17 @@
                     </table>
                 </div>
 
-                <!-- UTILITY: TOMBOL RESET (HANYA UNTUK OWNER) -->
                 <div class="pt-4 border-t border-slate-800/60 flex justify-end">
                     <button onclick="bukaFiturResetSistem()" class="bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-400 font-black text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-all flex items-center space-x-2">
                         <i class="fa-solid fa-trash-can-arrow-up"></i>
-                        <span>Reset Semua Data Toko</span>
+                        <span>Reset Semua Data Cloud</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- LABA RUGI -->
         <div id="content-laba-rugi" class="menu-content hidden flex flex-col space-y-4 max-w-md">
-            <h2 class="text-xs font-black text-slate-200 tracking-widest uppercase pb-2 border-b border-slate-800 flex items-center"><i class="fa-solid fa-chart-line mr-2 text-emerald-400"></i>Rekap Finansial (Vertikal)</h2>
+            <h2 class="text-xs font-black text-slate-200 tracking-widest uppercase pb-2 border-b border-slate-800 flex items-center"><i class="fa-solid fa-chart-line mr-2 text-emerald-400"></i>Rekap Finansial Cloud</h2>
             
             <div class="bg-darkCard border border-slate-800 p-5 rounded-2xl shadow-xl relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
@@ -335,7 +321,6 @@
             </div>
         </div>
 
-        <!-- ARUS KAS -->
         <div id="content-arus-kas" class="menu-content hidden flex flex-col space-y-4 max-w-4xl">
             <div class="bg-darkCard border border-slate-800/70 rounded-2xl p-5 shadow-xl">
                 <h2 class="text-xs font-black text-slate-200 tracking-widest uppercase mb-4 pb-2 border-b border-slate-800/60 flex items-center"><i class="fa-solid fa-money-bill-transfer mr-2 text-slate-400"></i>Pengeluaran Operasional Toko</h2>
@@ -370,8 +355,24 @@
 
     </main>
 
-    <!-- CORE ENGINE -->
     <script>
+        // ==========================================
+        // KONFIGURASI ASLI MILIK FAHRI
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcFbMF7d62TP2gJeqsl9cvz_ayWN2xves",
+            authDomain: "warkop21.firebaseapp.com",
+            databaseURL: "https://warkop21-default-rtdb.asia-southeast1.firebasedatabase.app", 
+            projectId: "warkop21",
+            storageBucket: "warkop21.firebasestorage.app",
+            messagingSenderId: "1003335996579",
+            appId: "1:1003335996579:web:d0bde12bc9d908028a9b16"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         let currentUserRole = '';
         
         const MASTER_MENU_DEFAULT = [
@@ -429,44 +430,57 @@
             { id: "D31", kat: "Minuman", nama: "TST", modalAwal: 8000, stokAwal: 30, harga: 15000 }
         ];
 
-        let daftarMenu = JSON.parse(localStorage.getItem('w21_menu')) || MASTER_MENU_DEFAULT;
+        let daftarMenu = [];
         let keranjang = [];
         let keranjangHutang = []; 
-        let riwayatTrans = JSON.parse(localStorage.getItem('w21_riwayat')) || [];
-        let bukuHutang = JSON.parse(localStorage.getItem('w21_hutang')) || [];
-        let jurnalKas = JSON.parse(localStorage.getItem('w21_jurnal')) || [];
+        let riwayatTrans = [];
+        let bukuHutang = [];
+        let jurnalKas = [];
 
         let totalOmset = 0, totalHPP = 0, totalUntungBersih = 0, totalKasFisik = 0;
 
-        function simpanSemuaData() {
-            localStorage.setItem('w21_menu', JSON.stringify(daftarMenu));
-            localStorage.setItem('w21_riwayat', JSON.stringify(riwayatTrans));
-            localStorage.setItem('w21_hutang', JSON.stringify(bukuHutang));
-            localStorage.setItem('w21_jurnal', JSON.stringify(jurnalKas));
-            hitungUlangLabaRugi();
-        }
-
-        // ==========================================
-        // SINKRONISASI INTER-TAB (REAL-TIME ENGINE)
-        // ==========================================
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'w21_menu') {
-                daftarMenu = JSON.parse(e.newValue) || MASTER_MENU_DEFAULT;
+        // ===================================================
+        // FIREBASE SYNC ENGINE
+        // ===================================================
+        function startFirebaseRealtimeListeners() {
+            db.ref('w21_menu').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    db.ref('w21_menu').set(MASTER_MENU_DEFAULT);
+                    daftarMenu = [...MASTER_MENU_DEFAULT];
+                } else {
+                    daftarMenu = Object.values(data);
+                }
                 renderDropdowns();
                 renderTabelStok();
                 updateFormMenu();
-            }
-            if (e.key === 'w21_riwayat' || e.key === 'w21_hutang' || e.key === 'w21_jurnal') {
-                riwayatTrans = JSON.parse(localStorage.getItem('w21_riwayat')) || [];
-                bukuHutang = JSON.parse(localStorage.getItem('w21_hutang')) || [];
-                jurnalKas = JSON.parse(localStorage.getItem('w21_jurnal')) || [];
-                
+            });
+
+            db.ref('w21_riwayat').on('value', (snapshot) => {
+                const data = snapshot.val();
+                riwayatTrans = data ? Object.values(data).reverse() : [];
                 renderRiwayatNota();
+                hitungUlangLabaRugi();
+            });
+
+            db.ref('w21_hutang').on('value', (snapshot) => {
+                const data = snapshot.val();
+                bukuHutang = data ? Object.values(data) : [];
                 renderBukuHutang();
+                hitungUlangLabaRugi();
+            });
+
+            db.ref('w21_jurnal').on('value', (snapshot) => {
+                const data = snapshot.val();
+                jurnalKas = data ? Object.values(data).reverse() : [];
                 renderJurnalKas();
                 hitungUlangLabaRugi();
-            }
-        });
+            });
+        }
+
+        function uploadMenuCloud() {
+            db.ref('w21_menu').set(daftarMenu);
+        }
 
         function hitungUlangLabaRugi() {
             totalOmset = 0; totalHPP = 0; totalUntungBersih = 0; totalKasFisik = 0;
@@ -508,10 +522,10 @@
             const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             let jam = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            return `${hari[d.getDay()]}, ${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()} - ${jam}`;
+            return `${hari[d.getDay()]} - ${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()} - ${jam}`;
         }
 
-        // AUTH SYSTEM
+        // LOGIN ENGINE
         function handleLoginRealTime() {
             const u = document.getElementById('loginUsername').value.trim();
             const p = document.getElementById('loginPassword').value.trim();
@@ -531,17 +545,13 @@
             document.getElementById('loginUsername').value = '';
             document.getElementById('loginPassword').value = '';
 
-            daftarMenu = JSON.parse(localStorage.getItem('w21_menu')) || MASTER_MENU_DEFAULT;
-            riwayatTrans = JSON.parse(localStorage.getItem('w21_riwayat')) || [];
-            bukuHutang = JSON.parse(localStorage.getItem('w21_hutang')) || [];
-            jurnalKas = JSON.parse(localStorage.getItem('w21_jurnal')) || [];
-
-            renderDropdowns(); renderTabelStok(); renderKeranjang(); renderRiwayatNota(); renderBukuHutang(); renderJurnalKas(); hitungUlangLabaRugi();
+            startFirebaseRealtimeListeners();
         }
 
         function handleLogout() {
             currentUserRole = '';
             document.getElementById('loginScreen').classList.remove('hidden');
+            db.ref().off(); 
             switchMenu('mesin-kasir', document.querySelector('.menu-btn'));
         }
 
@@ -578,10 +588,7 @@
             const idx = daftarMenu.findIndex(m => m.id === idMenu);
             if (idx > -1) {
                 daftarMenu[idx][properti] = nilaiBaru;
-                localStorage.setItem('w21_menu', JSON.stringify(daftarMenu));
-                updateFormMenu();
-                renderDropdowns();
-                hitungUlangLabaRugi();
+                uploadMenuCloud();
             }
         }
 
@@ -606,11 +613,10 @@
             });
         }
 
-        // KASIR CORES
+        // KASIR LOGICS
         function toggleKolomTunai() {
             const metode = document.getElementById('kasirMetodeBayar').value;
             const boxUangDiterima = document.getElementById('boxUangDiterima');
-            const boxUangKembalian = document.getElementById('boxUangKembalian');
             
             if (metode === 'QRIS') {
                 boxUangDiterima.style.opacity = '0.3';
@@ -644,8 +650,8 @@
             }
 
             document.getElementById('inputJumlah').value = 1;
-            updateFormMenu(); renderKeranjang(); renderTabelStok();
-            localStorage.setItem('w21_menu', JSON.stringify(daftarMenu));
+            uploadMenuCloud();
+            renderKeranjang();
         }
 
         function hapusItemKeranjang(index) {
@@ -653,8 +659,8 @@
             const mIdx = daftarMenu.findIndex(m => m.id === item.id);
             daftarMenu[mIdx].stokAwal += item.qty;
             keranjang.splice(index, 1);
-            updateFormMenu(); renderKeranjang(); renderTabelStok();
-            localStorage.setItem('w21_menu', JSON.stringify(daftarMenu));
+            uploadMenuCloud();
+            renderKeranjang();
         }
 
         function renderKeranjang() {
@@ -700,7 +706,7 @@
             let detailStr = keranjang.map(i => `${i.nama} (${i.qty}x)`).join(', ');
             let tgl = getTanggalLengkapSistem();
 
-            riwayatTrans.unshift({ 
+            db.ref('w21_riwayat').push({ 
                 type: 'KASIR', 
                 tanggal: tgl, 
                 detail: `[Nota - ${metode}] ${detailStr}`, 
@@ -708,21 +714,19 @@
                 items: [...keranjang] 
             });
             
-            jurnalKas.unshift({ 
+            db.ref('w21_jurnal').push({ 
                 tanggal: tgl, 
                 ket: `Kasir (${metode}): ${detailStr}`, 
                 tipe: 'MASUK', 
                 nominal: total 
             });
 
-            alert('Transaksi Berhasil Disimpan!');
+            alert('Transaksi Berhasil Disimpan di Cloud!');
             keranjang = []; 
             document.getElementById('uangDiterima').value = '';
             document.getElementById('kasirMetodeBayar').value = 'TUNAI';
             toggleKolomTunai();
-            
-            simpanSemuaData();
-            renderKeranjang(); renderRiwayatNota(); renderJurnalKas();
+            renderKeranjang();
         }
 
         function renderRiwayatNota() {
@@ -746,9 +750,7 @@
             container.innerHTML = html;
         }
 
-        // ==========================================
-        // MULTI-MENU BUKU HUTANG ENGINE
-        // ==========================================
+        // HUTANG SYSTEM WITH CLOUD STORAGE
         function tambahKeKeranjangHutang() {
             const idMenu = document.getElementById('hutangPilihMenu').value;
             const qty = parseInt(document.getElementById('hutangQty').value) || 0;
@@ -780,19 +782,17 @@
             }
 
             document.getElementById('hutangQty').value = 1;
+            uploadMenuCloud();
             renderKeranjangHutang();
-            renderTabelStok();
-            updateFormMenu();
         }
 
-        function hapusItemKeranjangHutang(index) {
+        function deleteItemKeranjangHutang(index) {
             const item = keranjangHutang[index];
             const mIdx = daftarMenu.findIndex(m => m.id === item.id);
             daftarMenu[mIdx].stokAwal += item.qty; 
             keranjangHutang.splice(index, 1);
+            uploadMenuCloud();
             renderKeranjangHutang();
-            renderTabelStok();
-            updateFormMenu();
         }
 
         function renderKeranjangHutang() {
@@ -807,7 +807,7 @@
                 total += item.subtotal;
                 html += `<div class="bg-darkInput p-2 rounded-xl flex justify-between items-center text-[11px] border border-slate-900">
                     <div><span class="font-bold text-slate-300">${item.nama}</span> <span class="text-slate-500">(${item.qty}x)</span></div>
-                    <div class="flex items-center space-x-2"><span class="font-bold text-rose-400">Rp ${item.subtotal.toLocaleString()}</span><button onclick="hapusItemKeranjangHutang(${index})" class="text-rose-500 text-xs"><i class="fa-solid fa-square-xmark"></i></button></div>
+                    <div class="flex items-center space-x-2"><span class="font-bold text-rose-400">Rp ${item.subtotal.toLocaleString()}</span><button onclick="deleteItemKeranjangHutang(${index})" class="text-rose-500 text-xs"><i class="fa-solid fa-square-xmark"></i></button></div>
                 </div>`;
             });
             container.innerHTML = html;
@@ -830,7 +830,9 @@
 
             let tgl = getTanggalLengkapSistem();
 
-            bukuHutang.push({ 
+            const newHutangRef = db.ref('w21_hutang').push();
+            newHutangRef.set({ 
+                idKey: newHutangRef.key,
                 nama: nama, 
                 detail: detailHutang, 
                 nominal: totalDanaHutang, 
@@ -838,7 +840,7 @@
                 status: 'BELUM LUNAS' 
             });
 
-            riwayatTrans.unshift({ 
+            db.ref('w21_riwayat').push({ 
                 type: 'HUTANG_BARU', 
                 tanggal: tgl, 
                 detail: `[Hutang Baru] Pelanggan: ${nama} - Berhutang menu [${detailHutang}]`, 
@@ -847,47 +849,45 @@
 
             document.getElementById('hutangNama').value = '';
             keranjangHutang = [];
-            
-            simpanSemuaData();
             renderKeranjangHutang();
-            renderBukuHutang(); 
-            renderRiwayatNota();
         }
 
-        function lunasiHutang(index) {
+        function lunasiHutangCloud(keyId) {
             let tgl = getTanggalLengkapSistem();
             const metode = document.getElementById('hutangMetodeBayar').value;
-            const h = bukuHutang[index]; 
-            h.status = 'LUNAS';
             
-            jurnalKas.unshift({ 
-                tanggal: tgl, 
-                ket: `Lunas Hutang (${metode}): ${h.nama} - [${h.detail}]`, 
-                tipe: 'MASUK', 
-                nominal: h.nominal 
+            db.ref(`w21_hutang/${keyId}`).once('value', (snapshot) => {
+                const h = snapshot.val();
+                if(h) {
+                    db.ref(`w21_hutang/${keyId}/status`).set('LUNAS');
+                    
+                    db.ref('w21_jurnal').push({ 
+                        tanggal: tgl, 
+                        ket: `Lunas Hutang (${metode}): ${h.nama} - [${h.detail}]`, 
+                        tipe: 'MASUK', 
+                        nominal: h.nominal 
+                    });
+                    
+                    db.ref('w21_riwayat').push({ 
+                        type: 'HUTANG_LUNAS', 
+                        tanggal: tgl, 
+                        detail: `[Hutang Lunas - ${metode}] Pelanggan: ${h.nama} melunasi item [${h.detail}]`, 
+                        total: h.nominal 
+                    });
+                }
             });
-            
-            riwayatTrans.unshift({ 
-                type: 'HUTANG_LUNAS', 
-                tanggal: tgl, 
-                detail: `[Hutang Lunas - ${metode}] Pelanggan: ${h.nama} melunasi item [${h.detail}]`, 
-                total: h.nominal 
-            });
-
-            simpanSemuaData();
-            renderBukuHutang(); renderJurnalKas(); renderRiwayatNota();
         }
 
         function renderBukuHutang() {
             const tbody = document.getElementById('tabelHutangContainer'); tbody.innerHTML = '';
             if(bukuHutang.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-600 italic">Belum ada catatan hutang.</td></tr>`; return; }
-            bukuHutang.forEach((h, idx) => {
+            bukuHutang.forEach((h) => {
                 tbody.innerHTML += `<tr class="border-b border-slate-800/60 text-xs">
                     <td class="p-3 font-bold text-slate-200">${h.nama}</td>
                     <td class="p-3 text-slate-400 max-w-xs break-words">${h.detail}</td>
                     <td class="p-3 text-center font-black text-rose-400">Rp ${h.nominal.toLocaleString()}</td>
                     <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[9px] ${h.status==='LUNAS'?'bg-emerald-950 text-emerald-400':'bg-rose-950 text-rose-400'}">${h.status}</span></td>
-                    <td class="p-3 text-center">${h.status === 'BELUM LUNAS' ? `<button onclick="lunasiHutang(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded text-[10px] font-bold transition-all"><i class="fa-solid fa-check mr-1"></i>LUNAS</button>` : '-'}</td>
+                    <td class="p-3 text-center">${h.status === 'BELUM LUNAS' ? `<button onclick="lunasiHutangCloud('${h.idKey}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded text-[10px] font-bold transition-all"><i class="fa-solid fa-check mr-1"></i>LUNAS</button>` : '-'}</td>
                 </tr>`;
             });
         }
@@ -898,12 +898,10 @@
             const nominal = parseInt(document.getElementById('kasNominal').value) || 0;
             if(!ket || nominal <= 0) return;
 
-            jurnalKas.unshift({ tanggal: getTanggalLengkapSistem(), ket: `[Beban] ${ket}`, tipe: 'KELUAR', nominal: nominal });
+            db.ref('w21_jurnal').push({ tanggal: getTanggalLengkapSistem(), ket: `[Beban] ${ket}`, tipe: 'KELUAR', nominal: nominal });
 
-            document.getElementById('kasKeterangan').value = ''; document.getElementById('kasNominal').value = '';
-            
-            simpanSemuaData();
-            renderJurnalKas();
+            document.getElementById('kasKeterangan').value = ''; 
+            document.getElementById('kasNominal').value = '';
         }
 
         function renderJurnalKas() {
@@ -925,45 +923,30 @@
             document.getElementById('reportKas').textContent = `Rp ${totalKasFisik.toLocaleString('id-ID')}`;
         }
 
-        // ENGINE RESET DATA TOTAL (HANYA OWNER)
+        // RESET SYSTEM
         function bukaFiturResetSistem() {
             if (currentUserRole !== 'owner') {
-                alert('Akses Ditolak! Hanya Owner yang berhak mereset seluruh data toko.');
+                alert('Akses Ditolak! Hanya Owner yang berhak mereset seluruh data cloud toko.');
                 return;
             }
 
-            const konfirmasi1 = confirm("⚠️ PERINGATAN KERAS!\nApakah Anda yakin ingin menghapus seluruh data transaksi, riwayat nota, buku hutang, dan laporan laba rugi?");
+            const konfirmasi1 = confirm("⚠️ PERINGATAN CLOUD RESET!\nApakah Anda yakin ingin menghapus seluruh data transaksi dari database server cloud?");
             if (konfirmasi1) {
-                const konfirmasi2 = confirm("Tindakan ini tidak bisa dibatalkan! Semua data di komputer Owner dan Staf akan kembali kosong (nol). Lanjutkan?");
+                const konfirmasi2 = confirm("Semua HP/Laptop Staf & Owner akan ikut ter-reset secara otomatis dalam waktu bersamaan. Lanjutkan?");
                 if (konfirmasi2) {
-                    localStorage.removeItem('w21_riwayat');
-                    localStorage.removeItem('w21_hutang');
-                    localStorage.removeItem('w21_jurnal');
-                    
-                    localStorage.setItem('w21_menu', JSON.stringify(MASTER_MENU_DEFAULT));
+                    db.ref('w21_riwayat').remove();
+                    db.ref('w21_hutang').remove();
+                    db.ref('w21_jurnal').remove();
+                    db.ref('w21_menu').set(MASTER_MENU_DEFAULT);
 
-                    daftarMenu = [...MASTER_MENU_DEFAULT];
-                    keranjang = [];
-                    keranjangHutang = [];
-                    riwayatTrans = [];
-                    bukuHutang = [];
-                    jurnalKas = [];
-
-                    renderDropdowns();
-                    renderTabelStok();
-                    renderKeranjang();
-                    renderKeranjangHutang();
-                    renderRiwayatNota();
-                    renderBukuHutang();
-                    renderJurnalKas();
-                    hitungUlangLabaRugi();
-
-                    alert("✅ Sukses! Semua data riwayat toko berhasil di-reset ke pengaturan awal.");
+                    let keranjang = [];
+                    let keranjangHutang = [];
+                    alert("✅ Sukses! Database Cloud Warkop 21 POS dibersihkan.");
                 }
             }
         }
 
-        // VIEW & INTERACTION UTILS
+        // INTERACTION DOM UTILS
         function toggleSidebar(open) {
             const sb = document.getElementById('sidebar'); const ol = document.getElementById('sidebarOverlay');
             if(open) { ol.classList.remove('hidden'); setTimeout(()=>ol.classList.add('opacity-100'),10); sb.classList.remove('-translate-x-full'); } 
